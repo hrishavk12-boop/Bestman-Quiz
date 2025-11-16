@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Sachin Quiz!</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to right, #ffecd2, #fcb69f);
+        padding: 20px;
+        text-align: center;
+    }
+    h1 {
+        color: #ff4500;
+        margin-bottom: 10px;
+    }
+    .question {
+        margin: 20px auto;
+        text-align: left;
+        display: inline-block;
+        background-color: rgba(255,255,255,0.8);
+        padding: 15px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+    }
+    .question img {
+        max-width: 100%;
+        margin-top: 10px;
+        border-radius: 10px;
+    }
+    button {
+        padding: 12px 25px;
+        margin-top: 20px;
+        background-color: #ff4500;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+    button:hover {
+        background-color: #e03e00;
+    }
+    #result {
+        margin-top: 30px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        white-space: pre-line;
+    }
+    #leaderboard {
+        margin-top: 25px;
+        text-align: center;
+    }
+    #leaderboard h2 {
+        color: #ff4500;
+    }
+    #leaderboard li.gold { color: #FFD700; font-weight: bold; }
+    #leaderboard li.silver { color: #C0C0C0; font-weight: bold; }
+    #leaderboard li.bronze { color: #cd7f32; font-weight: bold; }
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        top: 0;
+        animation: fall 3s linear infinite;
+        border-radius: 50%;
+    }
+    @keyframes fall {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(100vh) rotate(360deg); }
+    }
+</style>
+</head>
+<body>
+
+<h1>Ultimate Sachin Quiz!</h1>
+<p>Answer these fun questions to see how well you know Sachin!</p>
+
+<form id="quizForm">
+    <div class="question">
+        <label>Enter your name:</label><br>
+        <input type="text" id="playerName" placeholder="Your Name" required><br><br>
+    </div>
+
+    <div class="question">
+        <label>1. Sachin's ultimate comfort food is:</label><br>
+        <input type="radio" name="q1" value="Pizza" required> Pizza<br>
+        <input type="radio" name="q1" value="Burger"> Burger<br>
+        <input type="radio" name="q1" value="Ice Cream"> Ice Cream<br>
+        <input type="radio" name="q1" value="Chocolate"> Chocolate<br>
+        <img src="https://images.unsplash.com/photo-1601924582973-b83218a9f038?fit=crop&w=400&q=80" alt="Food">
+    </div>
+
+    <div class="question">
+        <label>2. Sachin spends most of his free time:</label><br>
+        <input type="radio" name="q2" value="Gaming" required> Gaming<br>
+        <input type="radio" name="q2" value="Sleeping"> Sleeping<br>
+        <input type="radio" name="q2" value="Watching movies"> Watching movies<br>
+        <input type="radio" name="q2" value="Cooking"> Cooking<br>
+        <img src="https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?fit=crop&w=400&q=80" alt="Gaming">
+    </div>
+
+    <div class="question">
+        <label>3. If Sachin were a superhero, he would be:</label><br>
+        <input type="radio" name="q3" value="The Foodie Avenger" required> The Foodie Avenger<br>
+        <input type="radio" name="q3" value="Nap Man"> Nap Man<br>
+        <input type="radio" name="q3" value="Gaming Guru"> Gaming Guru<br>
+        <input type="radio" name="q3" value="Laugh Master"> Laugh Master<br>
+        <img src="https://images.unsplash.com/photo-1555685812-4b943f1da4f2?fit=crop&w=400&q=80" alt="Superhero">
+    </div>
+
+    <div class="question">
+        <label>4. Sachin laughs the most at:</label><br>
+        <input type="radio" name="q4" value="Comedy 1" required> Comedy 1<br>
+        <input type="radio" name="q4" value="Comedy 2"> Comedy 2<br>
+        <input type="radio" name="q4" value="Comedy 3"> Comedy 3<br>
+        <input type="radio" name="q4" value="Comedy 4"> Comedy 4<br>
+        <img src="https://images.unsplash.com/photo-1582719478171-5a18c869c470?fit=crop&w=400&q=80" alt="Comedy">
+    </div>
+
+    <button type="button" onclick="submitQuiz()">Submit</button>
+</form>
+
+<p id="result"></p>
+
+<div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul id="scoreList"></ul>
+</div>
+
+<script>
+// Function to create confetti
+function createConfetti() {
+    for(let i=0;i<100;i++){
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random()*100 + 'vw';
+        confetti.style.animationDuration = (2 + Math.random()*3) + 's';
+        confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+    }
+}
+
+// Display leaderboard from localStorage
+function updateLeaderboard(topScorerName) {
+    const scoreList = document.getElementById('scoreList');
+    scoreList.innerHTML = '';
+    const scores = JSON.parse(localStorage.getItem('sachinQuizScores')) || [];
+    scores.sort((a,b)=>b.score-a.score); // Descending order
+    scores.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.innerText = `${entry.name}: ${entry.score}/4`;
+        if(index === 0) li.classList.add('gold');
+        else if(index === 1) li.classList.add('silver');
+        else if(index === 2) li.classList.add('bronze');
+        scoreList.appendChild(li);
+    });
+
+    // Trigger confetti if the current player is top scorer
+    if(topScorerName && scores[0].name === topScorerName) {
+        createConfetti();
+    }
+}
+
+function submitQuiz() {
+    const form = document.getElementById('quizForm');
+    const playerName = document.getElementById('playerName').value.trim();
+    if(!playerName) {
+        alert("Please enter your name!");
+        return;
+    }
+
+    let score = 0;
+    const answers = {
+        q1: "Pizza",
+        q2: "Gaming",
+        q3: "The Foodie Avenger",
+        q4: "Comedy 2"
+    };
+
+    for (let q in answers) {
+        const selected = form[q].value;
+        if (selected === answers[q]) score++;
+    }
+
+    // Save score to localStorage
+    const scores = JSON.parse(localStorage.getItem('sachinQuizScores')) || [];
+    scores.push({name: playerName, score: score});
+    localStorage.setItem('sachinQuizScores', JSON.stringify(scores));
+
+    // Show result
+    let resultText = `You scored ${score} out of 4! `;
+    if(score === 4){
+        resultText += "You are a true Sachin expert! 🎉";
+    } else if(score >= 2){
+        resultText += "Not bad! You know him fairly well 😎";
+    } else {
+        resultText += "Looks like you need to spend more time with Sachin 😅";
+    }
+    resultText += "\n\nP.S. Rumor has it... Sachin is a little smelly! 😜";
+    document.getElementById('result').innerText = resultText;
+
+    // Hide form and show restart button
+    form.style.display = "none";
+    const restartBtn = document.createElement('button');
+    restartBtn.innerText = "Restart Quiz";
+    restartBtn.onclick = restartQuiz;
+    restartBtn.id = "restartBtn";
+    document.body.appendChild(restartBtn);
+
+    updateLeaderboard(playerName);
+}
+
+// Restart quiz
+function restartQuiz() {
+    const form = document.getElementById('quizForm');
+    form.reset();
+    form.style.display = "block";
+    document.getElementById('result').innerText = "";
+    const restartBtn = document.getElementById('restartBtn');
+    restartBtn.remove();
+}
+
+// Initialize leaderboard on page load
+updateLeaderboard();
+</script>
+
+</body>
+</html>
